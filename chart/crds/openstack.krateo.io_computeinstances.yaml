@@ -1,0 +1,270 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: computeinstances.openstack.krateo.io
+spec:
+  group: openstack.krateo.io
+  names:
+    categories:
+    - krateo
+    - openstack
+    kind: ComputeInstance
+    listKind: ComputeInstanceList
+    plural: computeinstances
+    singular: computeinstance
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.id
+      name: ID
+      type: string
+    - jsonPath: .status.flavor
+      name: FLAVOR
+      type: string
+    - jsonPath: .status.state
+      name: STATE
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      priority: 1
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: A ComputeInstance is an openstack API type.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ComputeInstanceParams are the configurable fields of a compute
+              instance.
+            properties:
+              accessIPv4:
+                description: IPv4 address that should be used to access this server.
+                type: string
+              accessIPv6:
+                description: IPv6 address that should be used to access this server.
+                type: string
+              adminPass:
+                description: The administrative password of the server. If you omit
+                  this parameter, the operation generates a new password.
+                type: string
+              availabilityZone:
+                description: The availability zone from which to launch the server.
+                type: string
+              blockDeviceMapping:
+                description: BlockDeviceMapping enables fine grained control of the
+                  block device mapping for an instance. This is typically used for
+                  booting servers from volumes.
+                items:
+                  description: BlockDeviceParams is used to control a new server's
+                    block device attachments.
+                  properties:
+                    bootIndex:
+                      description: BootIndex defines the order in which a hypervisor
+                        tries devices when it attempts to boot the guest from storage.
+                      type: integer
+                    deleteOnTermination:
+                      description: DeleteOnTermination to delete the boot volume when
+                        the server is destroyed, specify true. Otherwise, specify
+                        false.
+                      type: boolean
+                    destinationType:
+                      description: DestinationType defines where the block device
+                        mapping will reside.
+                      type: string
+                    deviceType:
+                      description: The device type. For example, disk, cdrom.
+                      type: string
+                    diskBus:
+                      description: 'DiskBus type; example values: fdc, ide, sata,
+                        scsi, usb, virtio, xen, lxc and uml.'
+                      type: string
+                    guestFormat:
+                      description: GuestFormat specifies the guest server disk file
+                        system format, such as ext2, ext3, ext4, xfs or swap.
+                      type: string
+                    sourceType:
+                      description: SourceType is the source type of the block device.
+                        See Block Device Mapping in Nova for more details on valid
+                        source and destination types. https://docs.openstack.org/nova/latest/user/block-device-mapping.html
+                      type: string
+                    uuid:
+                      description: UUID is the unique identifier of source resource.
+                      type: string
+                    volumeSize:
+                      description: VolumeSize is the size of the volume (in GiB).
+                      type: integer
+                    volumeType:
+                      description: VolumeType can be used to specify the type of volume
+                        which the compute service will create and attach to the server.
+                      type: string
+                  required:
+                  - sourceType
+                  type: object
+                type: array
+              configDrive:
+                description: ConfigDrive indicates whether a config drive enables
+                  metadata injection.
+                type: boolean
+              connectorConfigRef:
+                description: 'ConnectorConfigRef: configuration spec for the REST
+                  API client.'
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  namespace:
+                    description: Namespace of the referenced object.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+              deletionPolicy:
+                default: Delete
+                description: DeletionPolicy specifies what will happen to the underlying
+                  external when this managed resource is deleted - either "Delete"
+                  or "Orphan" the external resource.
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              flavor:
+                description: 'Flavor: a way to describe the basic dimensions of a
+                  server.'
+                type: string
+              image:
+                description: 'Image: the image to use for your server instance.'
+                type: string
+              name:
+                description: 'Name: the server name.'
+                type: string
+              networks:
+                description: 'Networks: dictates how this server will be attached
+                  to available networks.'
+                items:
+                  description: NetworkParams is used to control a new server's network
+                    attachments.
+                  properties:
+                    fixedIp:
+                      description: FixedIP specifies a fixed IPv4 address to be used
+                        on this network.
+                      type: string
+                    name:
+                      description: Name of a network to attach to the newly provisioned
+                        server. Required unless Port is provided.
+                      type: string
+                    port:
+                      description: Port of a neutron network to attach to the newly
+                        provisioned server. Required unless UUID is provided.
+                      type: string
+                    tag:
+                      description: "Tag may contain an optional device role tag for
+                        the server's virtual network interface. This can be used to
+                        identify network interfaces when multiple networks are connected
+                        to one server. \n Requires microversion 2.32 through 2.36
+                        or 2.42 or later."
+                      type: string
+                    uuid:
+                      description: UUID is the unique identifier of source resource.
+                      type: string
+                  type: object
+                type: array
+              powerState:
+                description: 'PowerState specifiy the server power state. Can be:
+                  active or shutoff'
+                type: string
+              securityGroups:
+                description: SecurityGroups defines one or more security groups.
+                items:
+                  type: string
+                type: array
+              tags:
+                description: Tags allows a server to be tagged with single-word metadata.
+                  Requires microversion 2.52 or later.
+                items:
+                  type: string
+                type: array
+              userData:
+                description: Configuration information or scripts to use upon launch.
+                  Must be Base64 encoded. Restricted to 65535 bytes.
+                type: string
+            required:
+            - flavor
+            - name
+            type: object
+          status:
+            description: ComputeInstanceObservation are the observable fields of a
+              ComputeInstance.
+            properties:
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: LastTransitionTime is the last time this condition
+                        transitioned from one status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A Message containing details about this condition's
+                        last transition from one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: Type of this condition. At most one of each condition
+                        type may apply to a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              flavor:
+                type: string
+              id:
+                type: string
+              state:
+                type: string
+            required:
+            - id
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
