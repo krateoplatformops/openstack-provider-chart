@@ -4,11 +4,11 @@ metadata:
   name: {{ .Chart.Name }}
 rules:
   - apiGroups: ["openstack.krateo.io"]
-    resources: ["connectorconfigs", "computeinstances"]
+    resources: ["connectorconfigs", "computeinstances", "projects"]
     verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
   
   - apiGroups: ["openstack.krateo.io"]
-    resources: ["computeinstances/status"]
+    resources: ["computeinstances/status", "projects/status"]
     verbs: ["get", "patch", "update"]
   
   - apiGroups: [""]
