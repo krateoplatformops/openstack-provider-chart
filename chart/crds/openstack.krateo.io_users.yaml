@@ -5,26 +5,29 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.1
   creationTimestamp: null
-  name: projects.openstack.krateo.io
+  name: users.openstack.krateo.io
 spec:
   group: openstack.krateo.io
   names:
     categories:
     - krateo
     - openstack
-    kind: Project
-    listKind: ProjectList
-    plural: projects
-    singular: project
+    kind: User
+    listKind: UserList
+    plural: users
+    singular: user
   scope: Cluster
   versions:
   - additionalPrinterColumns:
     - jsonPath: .status.id
       name: ID
       type: string
-    - jsonPath: .status.isDomain
-      name: IS_DOMAIN
+    - jsonPath: .status.enabled
+      name: ENABLED
       type: boolean
+    - jsonPath: .status.tenantId
+      name: TENANT_ID
+      type: string
     - jsonPath: .status.conditions[?(@.type=='Ready')].status
       name: READY
       priority: 1
@@ -39,7 +42,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: A Project is an openstack API type.
+        description: A User is an openstack API type.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -54,7 +57,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProjectSpec represents an OpenStack Identity Project.
+            description: UserSpec represents an OpenStack Identity User.
             properties:
               connectorConfigRef:
                 description: 'ConnectorConfigRef: configuration spec for the REST
@@ -80,32 +83,58 @@ spec:
                 - Delete
                 type: string
               description:
-                description: Description is the description of the project.
+                description: Description is a description of the user.
                 type: string
               domainId:
-                description: DomainID is the domain ID the project belongs to.
+                description: DomainID is the ID of the domain of the user. If the
+                  domain ID is not provided in the request, the Identity service will
+                  attempt to pull the domain ID from the token used in the request.
+                  Note that this requires the use of a domain-scoped token.
                 type: string
               enabled:
-                description: Enabled is whether or not the project is enabled.
-                type: boolean
-              isDomain:
-                description: IsDomain indicates whether the project is a domain.
+                description: Enabled indicates whether the user is enabled (true)
+                  or disabled (false).
                 type: boolean
               name:
-                description: Name is the name of the project.
+                description: The user name. Must be unique within the owning domain.
                 type: string
-              parentId:
-                description: ParentID is the parent_id of the project.
-                type: string
-              tags:
-                description: Tags is the list of tags associated with the project.
-                items:
-                  type: string
-                type: array
+              password:
+                description: Password defines the password for the user.
+                properties:
+                  env:
+                    description: Env is a reference to an environment variable that
+                      contains credentials that must be used to connect to the provider.
+                    properties:
+                      name:
+                        description: Name is the name of an environment variable.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  secretRef:
+                    description: A SecretRef is a reference to a secret key that contains
+                      the credentials that must be used to connect to the provider.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                      namespace:
+                        description: Namespace of the referenced object.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                type: object
             required:
             - name
             type: object
           status:
+            description: UserStatus represents a status for the user resource.
             properties:
               conditions:
                 description: Conditions of the resource.
@@ -140,12 +169,16 @@ spec:
                   - type
                   type: object
                 type: array
-              id:
-                description: ID is the unique ID of the project.
-                type: string
-              isDomain:
-                description: IsDomain indicates whether the project is a domain.
+              enabled:
+                description: Enabled indicates whether the user is enabled (true)
+                  or disabled (false).
                 type: boolean
+              id:
+                description: ID is the UUID for this user.
+                type: string
+              tenantId:
+                description: TenantID is the ID of the tenant to which this user belongs.
+                type: string
             type: object
         required:
         - spec
