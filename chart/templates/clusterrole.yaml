@@ -12,6 +12,7 @@ rules:
       - computeinstances/status
       - projects/status
       - users/status
+      - quota/status
     verbs: ["get", "patch", "update"]
   
   - apiGroups: [""]
