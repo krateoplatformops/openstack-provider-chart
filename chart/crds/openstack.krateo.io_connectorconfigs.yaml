@@ -79,6 +79,9 @@ spec:
                     - namespace
                     type: object
                 type: object
+              domainId:
+                description: 'DomainID: the domain Id for OpenStack API.'
+                type: string
               domainName:
                 description: 'DomainName: the user for OpenStack API.'
                 type: string
